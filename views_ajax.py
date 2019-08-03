@@ -141,11 +141,7 @@ def index():
 @app.route('/filiere&<string:ide>', methods = ['GET','POST'])
 def action_filiere(ide):
     print(ide)
-    data=[
-        { "Prenom":"John" , "Nom":"Doe", "Age":"25" },
-        { "Prenom":"Anna" , "Nom":"Smith", "Age":"34" },
-        { "Prenom":"Peter" , "Nom":"Jones", "Age":"17" }
-    ]
+
     classe = Classe.query.filter_by(id_fil=ide).all()
     liste_classe=[]
     for val in classe:
@@ -154,6 +150,18 @@ def action_filiere(ide):
     print(liste_classe)  
 
     return jsonify(liste_classe)
+
+@app.route('/classe&<string:ide>', methods = ['GET','POST'])
+def action_classe(ide):
+    print(ide)
+
+    ele_classe = Classe.query.filter_by(id=ide).all()
+    liste_ele_classe=[]
+    for val in ele_classe:
+        mon_dict= {"mont_ins":val.mont_ins , "mensualite":val.mensualite }
+        liste_ele_classe.append(mon_dict)
+    print(liste_ele_classe)    
+    return jsonify(liste_ele_classe)
 
 @app.route('/ancien')
 def ancien():

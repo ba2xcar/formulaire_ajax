@@ -119,21 +119,21 @@
          <div class="two fields">      
             <div class="field">
                <label>Montant inscription</label>
-               <input type="text" name="prenom" readonly="true" value="{{prenom}}">
+               <input type="text" name="mont_ins" id="mont_ins"readonly="true" value="{{prenom}}">
             </div>
          </div>
          <!-- Champ prenom et nom -->
          <div class="two fields">      
             <div class="field">
                <label>Mensualité</label>
-               <input type="text" name="prenom" readonly="true" value="{{prenom}}">
+               <input type="text" name="mensualite" id="mensualite" readonly="true">
             </div>
          </div>
          <!-- Champ adresse -->
          <div class="two fields" id="">
             <div class="field">
                <label>Total inscription</label>
-               <input type="text" name="adresse" readonly="true" value="{{ adresse }}">
+               <input type="text" name="total_ins" id="total_ins" readonly="true" value="{{ adresse }}">
             </div>
          </div>
          <!-- Date d'inscription -->
@@ -233,6 +233,9 @@
             $('#fil').change(function(){ 
                var x = document.getElementById("fil").value;
                $('#classe').children('option:not(:first)').remove();
+               $('#mont_ins').val("");
+               $('#mensualite').val("");
+               $('#total_ins').val("");
                /*document.getElementById("response").innerHTML = "You selected: " + x;*/
                $.ajax({ 
                   type: "GET",
@@ -254,7 +257,7 @@
                         /* $('#fil').append('Prénom : ' + d.Prenom); */         
                         /* var selection = document.getElementById("classe");
                         selection.options[selection.options.length] = new Option(d.libelle, d.id);*/   
-                        $("#classe").append("<option value=' d.id '>" + d.libelle + "</option>");
+                        $("#classe").append("<option value="+ d.id +">" + d.libelle + "</option>");
                      });
                   }
                });
@@ -265,28 +268,33 @@
          $( document ).ready(function() {
             $('#classe').change(function(){ 
                var x = document.getElementById("classe").value;
-               /*document.getElementById("response").innerHTML = "You selected: " + x;*/
-               $.ajax({ 
+               $('#mont_ins').val("");
+               $('#mensualite').val("");
+               $('#total_ins').val("");
+/*                document.getElementById("response").innerHTML = "You selected: " + x;
+ */               $.ajax({ 
                   type: "GET",
-                  url: "http://127.0.0.1:5000/filiere&"+x,
+                  url: "http://127.0.0.1:5000/classe&"+x,
                });
             });
          });
 
          $( document ).ready(function() {
-            $('#fil').change(function(){ 
-               var x = document.getElementById("fil").value;
+            $('#classe').change(function(){ 
+               var x = document.getElementById("classe").value;
+/*                document.getElementById("response").innerHTML = x;
+ */
                $.ajax({ 
                   type: "GET",
                   contentType: 'application/json; charset=utf-8',
-                  url: "http://127.0.0.1:5000/filiere&"+x,
-                  success: function(liste_classe){
-                     $('#classe').children('option:not(:first)').remove();
-                     $.each(liste_classe,function(index,d){
-                        /* $('#fil').append('Prénom : ' + d.Prenom); */         
-                        /* var selection = document.getElementById("classe");
-                        selection.options[selection.options.length] = new Option(d.libelle, d.id);*/   
-                        $("#classe").append("<option value=' d.id '>" + d.libelle + "</option>");
+                  url: "http://127.0.0.1:5000/classe&"+x,
+                  success: function(liste_ele_classe){
+                     $.each(liste_ele_classe,function(index,d){
+                        $('#mont_ins').val(d.mont_ins);
+                        $('#mensualite').val(d.mensualite);
+                        $('#total_ins').val(d.mont_ins+d.mensualite);
+
+                        
                      });
                   }
                });
