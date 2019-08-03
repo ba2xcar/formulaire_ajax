@@ -51,18 +51,7 @@ class Apprenant(db.Model):
         self.adresse = adresse
         self.email = email
         self.tel = tel
-#**************************************TABLE INSCRIPTION************************************
-class Inscription(db.Model):
-    id = db.Column('id_ins',db.Integer, primary_key = True)
-    date_ins = db.Column(db.Date())
-    annee_aca = db.Column(db.String(100))
-    id_app = db.Column(db.Integer, db.ForeignKey('Apprenant.id_app'))
 
-
-    def __init__(self, date_ins, annee_aca, id_app):
-        self.date_ins = date_ins
-        self.annee_aca = annee_aca
-        self.id_app = id_app
 #**************************************TABLE FILIERE************************************
 class Filiere(db.Model):
     id = db.Column('id_fil',db.Integer, primary_key = True)
@@ -84,6 +73,20 @@ class Classe(db.Model):
         self.mont_ins = mont_ins
         self.mensualite = mensualite
         self.id_fil = id_fil
+#**************************************TABLE INSCRIPTION************************************
+class Inscription(db.Model):
+    id = db.Column('id_ins',db.Integer, primary_key = True)
+    date_ins = db.Column(db.Date())
+    annee_aca = db.Column(db.String(100))
+    id_app = db.Column(db.Integer, db.ForeignKey('apprenant.id_app'))
+    id_classe = db.Column(db.Integer, db.ForeignKey('classe.id_classe'))
+
+    def __init__(self, date_ins, annee_aca, id_app, id_classe):
+        self.date_ins = date_ins
+        self.annee_aca = annee_aca
+        self.id_app = id_app
+        self.id_classe = id_classe
+        
 #**************************************ACCUEIL************************************
 @app.route('/', methods = ['GET', 'POST'])
 def index():
@@ -95,48 +98,57 @@ def index():
         id_app=Apprenant.query.count()+1
         print(id_app)
 
-        inscrire = Inscription(request.form['date_ins'],request.form['annee_ac'].strip(),id_app=id_app)
+        inscrire = Inscription(request.form['date_ins'],request.form['annee_ac'].strip(),id_app=id_app,id_classe=request.form['classe'])
         db.session.add(student)
+        db.session.commit()
         db.session.add(inscrire)
         db.session.commit()
         return render_template("ajouter_apprenant.html")
     elif request.method == 'GET':
-        #---------------------------------Génération matricule-------------------------------------
-        date_actu=datetime.datetime.today().strftime('%Y')
-        matricule = Apprenant.query.count()
-        if matricule == 0:
-            num=1
-            val='-'+str(num)+'-'
-            gen_mat = "SA"+val+str(date_actu)
-        else:
-            num=matricule+1
-            val='-'+str(num)+'-'
-            gen_mat="SA"+val+str(date_actu)
+        return render_template("ajouter_apprenant.html",gen_mat=genere_matricule(),annee_academy=genere_annee_aca(),filieres=filiere_find_all())
 
-        #----------------------------------Génération Année Académique-----------------------------------
-        mois=int(datetime.datetime.today().strftime('%m'))
-        annee1=0
-        annee2=0
-        annee_academy=None
-        if mois>=8:
-            annee1 = int(datetime.datetime.today().strftime('%Y'))
-            print(annee1)
-            annee2 = annee1+1
-            annee_academy = str(annee1)+"/"+str(annee2)
-        else:
-            annee1=int(datetime.datetime.today().strftime('%Y'))
-            annee2=annee1-1
-            annee_academy=str(annee2)+"/"+str(annee1)
-        result=db.session.query(Filiere).all()
-        res = Filiere.query.all()
-        print(res)
-        filieres=[]
-        for row in result:
-            ma_liste = [row.id, row.libelle]  
-            filieres.append(ma_liste)  
-        print(filieres)
-        return render_template("ajouter_apprenant.html",gen_mat=gen_mat,annee_academy=annee_academy,filieres=filieres)
-
+#---------------------------------Génération matricule-------------------------------------
+def genere_matricule():
+    date_actu=datetime.datetime.today().strftime('%Y')
+    matricule = Apprenant.query.count()
+    if matricule == 0:
+        num=1
+        val='-'+str(num)+'-'
+        gen_mat = "SA"+val+str(date_actu)
+        return gen_mat
+    else:
+        num=matricule+1
+        val='-'+str(num)+'-'
+        gen_mat="SA"+val+str(date_actu)
+        return gen_mat
+#-----------------------------------Génération Année Académique-----------------------------------
+def genere_annee_aca():
+    mois=int(datetime.datetime.today().strftime('%m'))
+    annee1=0
+    annee2=0
+    annee_academy=None
+    if mois>=8:
+        annee1 = int(datetime.datetime.today().strftime('%Y'))
+        print(annee1)
+        annee2 = annee1+1
+        annee_academy = str(annee1)+"/"+str(annee2)
+        return annee_academy
+    else:
+        annee1=int(datetime.datetime.today().strftime('%Y'))
+        annee2=annee1-1
+        annee_academy=str(annee2)+"/"+str(annee1)
+        return annee_academy
+#-----------------------------------Liste des filières-----------------------------------
+def filiere_find_all():
+    result=db.session.query(Filiere).all()
+    res = Filiere.query.all()
+    print(res)
+    filieres=[]
+    for row in result:
+        ma_liste = [row.id, row.libelle]  
+        filieres.append(ma_liste)  
+    print(filieres)
+    return filieres
 
 @app.route('/filiere&<string:ide>', methods = ['GET','POST'])
 def action_filiere(ide):
@@ -162,6 +174,20 @@ def action_classe(ide):
         liste_ele_classe.append(mon_dict)
     print(liste_ele_classe)    
     return jsonify(liste_ele_classe)
+
+@app.route('/search&<string:ide>', methods = ['GET','POST'])
+def search_mat(ide):
+    print(ide)
+
+    app_search = Apprenant.query.filter_by(matricule=ide).all()
+    
+    apprenant_find=[]
+    for val in app_search:
+        mon_dict= {"prenom":val.prenom , "nom":val.nom, "sexe":val.sexe, "date_naiss":val.date_naiss,
+                    "lieu_naiss":val.lieu_naiss,"adresse":val.adresse,"email":val.email,"tel":val.tel }
+        apprenant_find.append(mon_dict)
+    print(apprenant_find)     
+    return jsonify(apprenant_find)
 
 @app.route('/ancien')
 def ancien():
