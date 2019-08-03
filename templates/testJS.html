@@ -1,0 +1,47 @@
+
+<!DOCTYPE HTML>  
+<html>  
+    <head>  
+        <title>  
+            Add a readonly attribute to an input field 
+        </title> 
+          
+        <script src =  
+"https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"> 
+        </script> 
+    </head>  
+      
+    <body style = "text-align:center;">  
+      
+        <h1 style = "color:green;" >  
+            GeeksForGeeks  
+        </h1> 
+          
+        <p style = "font-size: 15px; font-weight: bold;"> 
+            The readonly attribute is added to input box 
+            on click on the button. 
+        </p> 
+          
+        <form> 
+            <input type="radio" name="etat" tabindex="0" onclick = "GFG_Run()">
+            Input : <input type="text" readonly="true" name="input_field" id="cha" /> 
+        </form> 
+        <br> 
+          
+        <button onclick = "GFG_Run()"> 
+            click here 
+        </button> 
+          
+        <p id = "GFG_down" style =  
+            "color: green; font-size: 20px; font-weight: bold;"> 
+        </p> 
+          
+        <script> 
+            function GFG_Run() { 
+                  
+                $('#cha').attr('readonly', false); 
+               
+            } 
+        </script>  
+    </body>  
+</html> 

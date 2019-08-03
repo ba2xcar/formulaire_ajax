@@ -1,0 +1,14 @@
+INSERT INTO public.filiere(libelle)
+	VALUES ('Dev web'),('Génie logiciel'),('Systèmes et réseaux');
+
+INSERT INTO public.classe(
+	libelle, mont_ins, mensualite, id_fil)
+	VALUES ( 'L1 Dev web', 100000, 75000, 1),
+			( 'L2 Dev web', 110000, 75000, 1),
+			( 'L3 Dev web', 120000, 85000, 1),
+			( 'L1 GL', 100000, 80000, 2),
+			( 'L2 GL', 110000, 80000, 2),
+			( 'L3 GL', 120000, 90000, 2),
+			( 'L1 SR', 100000, 80000, 3),
+			( 'L2 SR', 115000, 85000, 3),
+			( 'L3 SR', 120000, 90000, 3);
