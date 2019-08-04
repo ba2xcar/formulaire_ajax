@@ -55,10 +55,10 @@ class Apprenant(db.Model):
 #**************************************TABLE FILIERE************************************
 class Filiere(db.Model):
     id = db.Column('id_fil',db.Integer, primary_key = True)
-    libelle = db.Column(db.String(100))
+    nom_fil = db.Column(db.String(100))
 
-    def __init__(self, libelle):
-        self.libelle = libelle
+    def __init__(self, nom_fil):
+        self.nom_fil = nom_fil
 #**************************************TABLE CLASSE************************************
 class Classe(db.Model):
     id = db.Column('id_classe',db.Integer, primary_key = True)
@@ -145,7 +145,7 @@ def filiere_find_all():
     print(res)
     filieres=[]
     for row in result:
-        ma_liste = [row.id, row.libelle]  
+        ma_liste = [row.id, row.nom_fil]  
         filieres.append(ma_liste)  
     print(filieres)
     return filieres
@@ -177,48 +177,52 @@ def action_classe(ide):
 
 @app.route('/search&<string:ide>', methods = ['GET','POST'])
 def search_mat(ide):
-    print(ide)
-
-    app_search = Apprenant.query.filter_by(matricule=ide).all()
-    
+    print(str(ide).upper())
+    mat=str(ide).upper()
+    mat_search=Apprenant.query.all()
     apprenant_find=[]
-    for val in app_search:
-        mon_dict= {"prenom":val.prenom , "nom":val.nom, "sexe":val.sexe, "date_naiss":val.date_naiss,
-                    "lieu_naiss":val.lieu_naiss,"adresse":val.adresse,"email":val.email,"tel":val.tel }
-        apprenant_find.append(mon_dict)
-    print(apprenant_find)     
-    return jsonify(apprenant_find)
+    liste_mat=[]
+    for val in mat_search:
+        liste_mat.append(val.matricule)
+    if (mat in liste_mat):
+        print("jvkkjnjl")
+        app_search = Apprenant.query.filter_by(matricule=mat).all()
+        
+        for val in app_search:
+            id_apprenant=val.id
+            mon_dict_app = {"id":val.id, "prenom":val.prenom , "nom":val.nom, "sexe":val.sexe, "date_naiss":val.date_naiss,
+                        "lieu_naiss":val.lieu_naiss,"adresse":val.adresse,"email":val.email,"tel":val.tel }
+            
+        ins_find=[]
+        ins_search = db.session.query(Inscription).join(Classe).filter(Inscription.id_app == id_apprenant).all()
+        iclass=None
+        for val in ins_search:
+            mon_dict_ins = {"date_ins":val.date_ins,"anne_aca":val.annee_aca,"iclass":val.id_classe}
+            iclass=val.id_classe
+            ins_find.append(mon_dict_ins)
+        print(ins_find)
+        print("iclas:",iclass)
+        
+        fil_search = Classe.query.join(Filiere, Classe.id_fil == Filiere.id).filter(Classe.id == iclass).all()
+        fil_name = Filiere.query.filter(Filiere.id == iclass).all()
+        for val in fil_name:
+            nom_filiere=val.nom_fil
+        print(mon_dict_app)
+        for val in fil_search:
+            mon_dict_app.update({"id_class":val.id,"lib_classe":val.libelle,"mont_ins":val.mont_ins,
+                            "mensualite":val.mensualite,"id_fil":val.id_fil,"nom_fil":nom_filiere})
+            
+            apprenant_find.append(mon_dict_app)
+        print(apprenant_find)
+        return jsonify(apprenant_find)
+    else:
+        return jsonify([{'vide':'WARNING Le matricule saisit n\'existe pas'}])
 
-@app.route('/ancien')
-def ancien():
-    return render_template("accueil.html")
+                
+            
 #*********************************************************************************
 
-#***************************************AJOUT APPRENANT*******************************
-@app.route('/inscription')
-def ajouter_apprenant():
-    requete_liste_promo = "SELECT id_promo,libelle FROM promotion WHERE date_debut>=DATE( NOW() )"
-    curseur.execute(requete_liste_promo)
-    result = curseur.fetchall()
-    valeurs=result   
 
-    requete_liste_matricule = "SELECT max(id_app) FROM apprenant"
-    curseur.execute(requete_liste_matricule)
-    result_matricule = curseur.fetchall()
-    for mat in result_matricule:
-        matricule=mat[0]    
-    date_actu=datetime.datetime.today().strftime('%Y')
-
-    if matricule == None:
-        num=1
-        val='-'+str(num)+'-'
-        gen_mat = "SA"+val+str(date_actu)
-    else:
-        num=matricule+1
-        val='-'+str(num)+'-'
-        gen_mat="SA"+val+str(date_actu)
-    user = session['username']
-    return render_template("ajouter_apprenant.html",valeurs=valeurs,gen_mat=gen_mat,user=user)
 
 #---------------------------------------------------------------------------------
 @app.route('/scolarite/inscription', methods=["POST"])

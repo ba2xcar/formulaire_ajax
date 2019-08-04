@@ -3,7 +3,7 @@
 
    <!-- Formulaire -->
    <form class="ui form" style="width:50%" method = "POST">
-      <h4 class="ui dividing header" style="text-align:center">AJOUTER UN APPRENANT</h4>
+      <h4 class="ui dividing header" style="text-align:center">FORMULAIRE D'INSCRIPTION ET DE REINSCRIPTION</h4>
       <!-- Bouton radio -->
       <div class="inline fields" style="margin-left:220px">
          <div class="field">
@@ -19,6 +19,8 @@
             </div>
          </div>
       </div>
+
+ 
       <!------------------------------------ Partie Etudiant --------------------------------------------->
       <div class="ui raised segment">
             <legend style="text-align:center">Etudiant</legend>
@@ -29,25 +31,30 @@
                <label>Matricule</label>
                <input type="text" name="matricule" readonly="true" id="mat" value="{{gen_mat}}" onkeypress="ecouteInput(event)">
             </div>
+            <div style="margin-top:25px;" >
+               <a  class="btn btn-primary" id="boutsearch" style="display: none;background:#328f8e; border: #328f8e; width: 35px;height: 35px;">
+                  <i class="search icon" style="padding-top:3px;margin: 0 auto;color: white"> </i>
+               </a>
+            </div>
          </div>
          <!-- Champ prenom et nom -->
          <div class="two fields">      
             <div class="required field">
-               <label>Prénom</label>
-               <input type="text" name="prenom" id ="prenom" placeholder="Prénom">
+               <label class="lab">Prénom</label>
+               <input type="text" name="prenom" id ="prenom" placeholder="Prénom" class="champ">
             </div>
                
             <div class="required field">
-               <label>Nom</label>
-               <input type="text" name="nom" id="nom" placeholder="Nom de famille">
+               <label class="lab">Nom</label>
+               <input type="text" name="nom" id="nom" placeholder="Nom de famille" class="champ">
             </div>
          </div>
 
          <!-- Combox genre -->
          <div class="two fields">
             <div class="required field">
-               <label>Sexe</label>
-               <select class="ui fluid dropdown" name="sexe" id="sexe">
+               <label class="lab">Sexe</label>
+               <select class="ui fluid dropdown" name="sexe" id="sexe" class="champ">
                   <option value="">Choisir genre</option>
                   <option value="Masculin">Masculin</option>
                   <option value="Féminin">Féminin</option> 
@@ -58,33 +65,33 @@
          <!-- Champ date naissance et lieu de naissance -->
          <div class="two fields">
             <div class="required field">
-               <label>Date de naissance</label>
-               <input type="date" name="date_naissance" id="date_naissance" max="2005-01-01">
+               <label class="lab">Date de naissance</label>
+               <input type="date" name="date_naissance" id="date_naissance" max="2005-01-01" class="champ">
             </div>    
             <div class="required field">
-               <label>Lieu de naissance</label>
-               <input type="text" name="lieu_naissance" id="lieu_naissance" placeholder="Lieu de naissance">
+               <label class="lab">Lieu de naissance</label>
+               <input type="text" name="lieu_naissance" id="lieu_naissance" placeholder="Lieu de naissance" class="champ">
             </div>
          </div>
 
          <!-- Champ adresse -->
          <div class="two fields">
             <div class="required field">
-               <label>Adresse</label>
-               <input type="text" name="adresse" id="adresse" placeholder="ville">
+               <label class="lab">Adresse</label>
+               <input type="text" name="adresse" id="adresse" placeholder="ville" class="champ" style="-moz-placeholder:color,red!important">
             </div>
          </div>
          
          <!-- Champ contact -->
          <div class="two fields">
             <div class="required field">
-               <label>E-mail</label>
-               <input type="email" name="email" id="email" placeholder="mamadou@gmail.com">
+               <label class="lab">E-mail</label>
+               <input type="email" name="email" id="email" placeholder="mamadou@gmail.com" class="champ">
             </div>    
             <div class="required field">
-               <label>Téléphone : <em> format(xx-xxx-xx-xx)</em></label>
+               <label class="lab">Téléphone : <em> format(xx-xxx-xx-xx)</em></label>
                <input type="tel" pattern="[0-9]{2}-[0-9]{3}-[0-9]{2}-[0-9]{2}"
-                  name="telephone" placeholder="xx-xxx-xx-xx" id="telephone">
+                  name="telephone" placeholder="xx-xxx-xx-xx" id="telephone" class="champ">
             </div>
          </div>
       </div>
@@ -97,8 +104,8 @@
          <!-- Combox Filière -->
          <div class="two fields">
             <div class="required field">
-               <label>Filière</label>
-               <select class="ui fluid dropdown" name="filiere" id="fil" >
+               <label class="lab">Filière</label>
+               <select class="ui fluid dropdown champ" name="filiere" id="fil">
                   <option value="">Choisir filière</option>
                   {% for val in filieres %}
                      <option value="{{ val[0] }}">{{ val[1] }}</option>
@@ -106,11 +113,12 @@
                </select>
             </div>   
          </div>  
+        
          <!-- Combox Classe -->
          <div class="two fields">
-            <div class="required field">
-               <label>Classe</label>
-               <select class="ui fluid dropdown" name="classe" id="classe">
+            <div class="required field" id="classe1">
+               <label class="lab">Classe</label>
+               <select class="ui fluid dropdown champ" name="classe" >
                   <option value="">Choisir classe</option>
                </select>
             </div>   
@@ -122,14 +130,14 @@
                <input type="text" name="mont_ins" id="mont_ins"readonly="true">
             </div>
          </div>
-         <!-- Champ prenom et nom -->
+         <!-- Champ mensualite -->
          <div class="two fields">      
             <div class="field">
                <label>Mensualité</label>
                <input type="text" name="mensualite" id="mensualite" readonly="true">
             </div>
          </div>
-         <!-- Champ adresse -->
+         <!-- Champ Total inscription -->
          <div class="two fields" id="">
             <div class="field">
                <label>Total inscription</label>
@@ -139,8 +147,8 @@
          <!-- Date d'inscription -->
          <div class="two fields">
             <div class="required field">
-               <label>Date d'inscription</label>
-               <input type="date" name="date_ins" id="date_ins">
+               <label class="lab">Date d'inscription</label>
+               <input type="date" name="date_ins" id="date_ins" class="champ">
             </div>    
          </div>
          <!-- Année Académique -->
@@ -161,103 +169,8 @@
          </div>
       </div>
 
-      {% with messages = get_flashed_messages() %}
-         {% for message in messages %} 
-         <script>
-            var someJavaScriptVar = '{{ message }}';
-         </script>
+   
 
-            {% if message%}
-               {% if message=="WARNING : L'apprenant existe déjà" %}
-               <script type="text/javascript">
-                  $('#btnDangerCenter').ready(function() {
-                     $.uiAlert({
-                        textHead: someJavaScriptVar,
-                        text: '', // Text
-                        bgcolor: '#DB2828', // background-color
-                        textcolor: '#fff', // color
-                        position: 'top-center',// position . top And bottom ||  left / center / right
-                        time: 3, // time
-                     })
-                  });
-               </script>
-               {% else %}
-                  <script type="text/javascript">
-                     $('#btnDangerCenter').ready(function() {
-                        $.uiAlert({
-                           textHead: someJavaScriptVar,
-                           text: '', // Text
-                           bgcolor: '#19c3aa', // background-color
-                           textcolor: '#fff', // color
-                           position: 'top-center',// position . top And bottom ||  left / center / right
-                           time: 3, // time
-                        })
-                     });
-                  </script>
-               {%endif%}
-            {%endif%}
-         {% endfor %}      
-      {% endwith %}
-      <!-- Script pour la validation des champs -->
-      <script>
-         $('.ui.form')
-         .form({
-            fields: {
-               prenom         : 'empty',
-               nom            : 'empty',
-               sexe           : 'empty',
-               date_naissance : 'empty',
-               lieu_naissance : 'empty',
-               adresse        : 'empty',
-               email          : 'empty',
-               telephone      : 'empty',
-               promo          : 'empty',
-            }
-         });           
-      </script>
-      <script>
-
-
-         function ecouteInput(event) {
-
-            var x = window.event.which || window.event.keyCode;
-            if(x==13){
-               document.getElementById('boutonenvoi').disabled = true;
-               var searchmat = document.getElementById("mat").value;
-               document.getElementById("response").innerHTML = "The Unicode value is: " + x;
-               $.ajax({ 
-                  type: "GET",
-                  url: "http://127.0.0.1:5000/search&"+searchmat,
-               });
-               $.ajax({ 
-                  type: "GET",
-                  contentType: 'application/json; charset=utf-8',
-                  url: "http://127.0.0.1:5000/search&"+searchmat,
-                  success: function(apprenant_find){
-                     $.each(apprenant_find,function(index,d){
-                        $('#prenom').val(d.prenom);
-                        $('#nom').val(d.nom);
-                        $('#sexe').val(d.sexe);
-                        
-                        function convert(str) {
-                        var date = new Date(str),
-                           mnth = ("0" + (date.getMonth() + 1)).slice(-2),
-                           day = ("0" + date.getDate()).slice(-2);
-                        return [date.getFullYear(), mnth, day].join("-");
-                        }
-                        $('#date_naissance').val(convert(d.date_naiss));
-                        $('#lieu_naissance').val(d.lieu_naiss);
-
-                        $('#adresse').val(d.adresse);
-                        $('#email').val(d.email);
-                        $('#telephone').val(d.tel);        
-                        
-                     });
-                  }
-               });
-            }
-         }
-      </script>
       <script type="text/javascript" src="{{ url_for('static', filename = 'ajax_jquery.js') }}"></script>
 <!--  <script src="https://code.jquery.com/jquery-2.1.4.js"></script>  -->   
    </form>
