@@ -86,6 +86,7 @@ $(function() {
    $('#nouveau').on('click',function(){
       document.getElementById("text-radio").innerHTML = "INSCRIPTION";
       changeColor();
+      document.getElementById('boutonenvoi').disabled = false;
 
       $('#mat').attr('readonly', true);
       $('#mat').val(matricule);
@@ -242,6 +243,8 @@ function ecrire(){
    $('#lieu_naissance').attr('readonly', false);
    $('#adresse').attr('readonly', false);
    $('#telephone').attr('readonly', false);
+   $('#email').attr('readonly', false);
+
    document.getElementById('boutsearch').style.display = 'none';
 
 }

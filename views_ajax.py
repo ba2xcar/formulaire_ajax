@@ -8,20 +8,6 @@ import json
 from flask import jsonify
 
 
-""" def ConnexionDB():
-    try:
-        #Connexion à la base de données
-        connection = psy.connect(user="postgres",password="",
-                                host="localhost",
-                                port="5432",
-                                database="scolaire"
-        )  
-        return connection
-    except (Exception) as error :
-        print ("Problème de connexion au serveur PostgreSQL", error)
-connection = ConnexionDB()
-curseur = connection.cursor() """
-
 app = Flask(__name__) #permet de localiser les ressources cad les templates
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:@localhost/scolaireAlchemy'
 app.secret_key = 'some_secret'
@@ -168,8 +154,6 @@ def genere_annee_aca():
 #-----------------------------------Liste des filières-----------------------------------
 def filiere_find_all():
     result=db.session.query(Filiere).all()
-    res = Filiere.query.all()
-    print(res)
     filieres=[]
     for row in result:
         ma_liste = [row.id, row.nom_fil]  
@@ -237,10 +221,6 @@ def search_mat(ide):
             ins_find.append(mon_dict_ins)
         print(ins_find)
         print("iclas:",iclass)
-
-    
-
-
         
         class_name=Classe.query.filter_by(id =iclass ).all()
         for val in class_name:
