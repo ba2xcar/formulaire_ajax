@@ -1,4 +1,4 @@
-INSERT INTO public.filiere(libelle)
+INSERT INTO public.filiere(nom_fil)
 	VALUES ('Dev web'),('Génie logiciel'),('Systèmes et réseaux');
 
 INSERT INTO public.classe(

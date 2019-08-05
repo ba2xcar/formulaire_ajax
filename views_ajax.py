@@ -90,22 +90,49 @@ class Inscription(db.Model):
 #**************************************ACCUEIL************************************
 @app.route('/', methods = ['GET', 'POST'])
 def index():
-    if request.method == 'POST':      
-        student = Apprenant(request.form['matricule'],request.form['prenom'].strip(),request.form['nom'].strip(),request.form['sexe'],
-                            request.form['date_naissance'],request.form['lieu_naissance'].strip(),
-                            request.form['adresse'].strip(),request.form['email'].strip(),request.form['telephone'].strip())
+    if request.method == 'POST':     
+        requete_check_app= Apprenant.query.all()
+        control_app=False
+        control_mat=False
+        for val in requete_check_app:
+            if request.form['matricule'] == val.matricule:
+                control_mat=True
+                id_update_app=val.id
 
-        id_app=Apprenant.query.count()+1
-        print(id_app)
+            if val.tel==request.form['telephone'].strip() or val.email== request.form['email'].strip():
+                control_app=True
+                
+        if control_mat == True:
+            requete_update = Inscription.query.filter_by(id_app=id_update_app).first()
+            requete_update.date_ins=request.form['date_ins']
+            requete_update.annee_aca=request.form['annee_ac'].strip()
+            requete_update.id_classe=request.form['classe']
+            db.session.commit()
+            flash("SUCCESS : Modification avec succès!!!")
+            return redirect(url_for('index'))
 
-        inscrire = Inscription(request.form['date_ins'],request.form['annee_ac'].strip(),id_app=id_app,id_classe=request.form['classe'])
-        db.session.add(student)
-        db.session.commit()
-        db.session.add(inscrire)
-        db.session.commit()
-        return render_template("ajouter_apprenant.html")
+        elif control_app == False:
+            student = Apprenant(request.form['matricule'],request.form['prenom'].strip(),request.form['nom'].strip(),request.form['sexe'],
+                                request.form['date_naissance'],request.form['lieu_naissance'].strip(),
+                                request.form['adresse'].strip(),request.form['email'].strip(),request.form['telephone'].strip())
+
+            id_app=Apprenant.query.count()+1
+            print(id_app)
+
+            inscrire = Inscription(request.form['date_ins'],request.form['annee_ac'].strip(),id_app=id_app,id_classe=request.form['classe'])
+            db.session.add(student)
+            db.session.commit()
+            db.session.add(inscrire)
+            db.session.commit()
+            db.session.close()
+            flash("SUCCESS : Apprenant ajouté avec succès!!!")
+            return redirect(url_for('index'))
+        else:
+            flash("WARNING : L'apprenant existe déjà")
+            return redirect(url_for('index'))
+
     elif request.method == 'GET':
-        return render_template("ajouter_apprenant.html",gen_mat=genere_matricule(),annee_academy=genere_annee_aca(),filieres=filiere_find_all())
+        return render_template("ajouter_apprenant.html",gen_mat=genere_matricule(),annee_academy=genere_annee_aca(),filieres=filiere_find_all(),date_ins=datetime.date.today())
 
 #---------------------------------Génération matricule-------------------------------------
 def genere_matricule():
@@ -150,6 +177,16 @@ def filiere_find_all():
     print(filieres)
     return filieres
 
+@app.route('/listfiliere', methods = ['GET','POST'])
+def liste_filiere():
+    liste_fil = Filiere.query.all()
+    liste_filiere=[]
+    for val in liste_fil:
+        mon_dict= { "id":val.id , "libelle":val.nom_fil}
+        liste_filiere.append(mon_dict)
+    print(liste_filiere)  
+    return jsonify(liste_filiere)
+
 @app.route('/filiere&<string:ide>', methods = ['GET','POST'])
 def action_filiere(ide):
     print(ide)
@@ -160,7 +197,6 @@ def action_filiere(ide):
         mon_dict= { "id":val.id , "libelle":val.libelle }
         liste_classe.append(mon_dict)
     print(liste_classe)  
-
     return jsonify(liste_classe)
 
 @app.route('/classe&<string:ide>', methods = ['GET','POST'])
@@ -185,7 +221,6 @@ def search_mat(ide):
     for val in mat_search:
         liste_mat.append(val.matricule)
     if (mat in liste_mat):
-        print("jvkkjnjl")
         app_search = Apprenant.query.filter_by(matricule=mat).all()
         
         for val in app_search:
@@ -202,143 +237,34 @@ def search_mat(ide):
             ins_find.append(mon_dict_ins)
         print(ins_find)
         print("iclas:",iclass)
+
+    
+
+
         
-        fil_search = Classe.query.join(Filiere, Classe.id_fil == Filiere.id).filter(Classe.id == iclass).all()
-        fil_name = Filiere.query.filter(Filiere.id == iclass).all()
+        class_name=Classe.query.filter_by(id =iclass ).all()
+        for val in class_name:
+            id_filiere=val.id_fil
+        print("idfil",id_filiere)
+
+        nom_filiere=None
+        fil_name = Filiere.query.filter_by(id = id_filiere).all()
+        print(fil_name)
+        
         for val in fil_name:
             nom_filiere=val.nom_fil
+        print(nom_filiere)
         print(mon_dict_app)
+
+        fil_search = Classe.query.join(Filiere, Classe.id_fil == Filiere.id).filter(Classe.id == iclass).all()
         for val in fil_search:
-            mon_dict_app.update({"id_class":val.id,"lib_classe":val.libelle,"mont_ins":val.mont_ins,
-                            "mensualite":val.mensualite,"id_fil":val.id_fil,"nom_fil":nom_filiere})
-            
+            mon_dict_app.update({"id_class":val.id,"lib_classe":val.libelle,"mont_ins":val.mont_ins,"mensualite":val.mensualite,"id_fil":val.id_fil,"nom_fil":nom_filiere})
             apprenant_find.append(mon_dict_app)
         print(apprenant_find)
         return jsonify(apprenant_find)
     else:
-        return jsonify([{'vide':'WARNING Le matricule saisit n\'existe pas'}])
-
-                
+        return jsonify([{'vide':'WARNING: Le matricule saisit n\'existe pas'}])
             
-#*********************************************************************************
-
-
-
-#---------------------------------------------------------------------------------
-@app.route('/scolarite/inscription', methods=["POST"])
-def insertion_app():
-    matricule = request.form["matricule"]
-    prenom = request.form["prenom"]
-    nom = request.form["nom"]
-    sexe = request.form["sexe"]
-    date_naissance = request.form["date_naissance"]
-    lieu_naissance = request.form["lieu_naissance"]
-    adresse = request.form["adresse"]
-    email = request.form["email"].lower()
-    telephone = request.form["telephone"]
-    promotion = request.form["promo"]
-    statut = 'inscrit'
-    data=(matricule,prenom,nom,sexe,date_naissance,lieu_naissance,adresse,email,telephone,promotion,statut)
-
-    requete_libelle_promo = "SELECT telephone,email FROM apprenant"
-    curseur.execute(requete_libelle_promo)
-    apprenant = curseur.fetchall()
-    control_app=False
-
-    for app in apprenant:
-        if app[0] == telephone or app[1].lower()==email.lower():
-            control_app = True
-            break
-    if control_app == True:
-        flash("WARNING : L'apprenant existe déjà")
-        requete_liste_promo = "SELECT id_promo,libelle FROM promotion WHERE date_debut>DATE( NOW() )"
-        curseur.execute(requete_liste_promo)
-        result = curseur.fetchall()
-        valeurs=result   
-
-        requete_liste_matricule = "SELECT max(id_app) FROM apprenant"
-        curseur.execute(requete_liste_matricule)
-        result_matricule = curseur.fetchall()
-        for mat in result_matricule:
-            matric=mat[0]
-        date_actu=datetime.datetime.today().strftime('%Y')
-
-        if matric == None:
-            num=1
-            val='-'+str(num)+'-'
-            gen_mat = "SA"+val+str(date_actu)
-        else:
-            num=matric+1
-            val='-'+str(num)+'-'
-            gen_mat="SA"+val+str(date_actu)
-        user = session['username']
-        return render_template("ajouter_apprenant.html",valeurs=valeurs,gen_mat=gen_mat,prenom=prenom,nom=nom,date_naissance=date_naissance,lieu_naissance=lieu_naissance,adresse=adresse,email=email,telephone=telephone,user=user)
-    elif control_app == False: 
-        requete_ajout_app = """INSERT INTO apprenant 
-                            (matricule,prenom,nom,sexe,date_naissance,lieu_naissance,adresse,email,telephone,id_promo,statut) 
-                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
-        curseur.execute(requete_ajout_app,data)
-        connection.commit() 
-        flash("SUCCESS : Apprenant ajouté avec succès!!!")
-        return redirect(url_for('ajouter_apprenant'))
-
-#**********************************************************************************
-
-
-#****************************************MODIFIER APPRENANT*********************************************
-@app.route('/modifier&<string:id_data>', methods = ['GET','POST'])
-def modifier(id_data):
-    if request.method == 'GET':
-        requete_ajout_app = """ select matricule,prenom,nom,sexe,date_naissance,lieu_naissance,adresse,email,telephone,
-                                apprenant.id_promo,promotion.libelle from apprenant, promotion where
-                                apprenant.id_promo = promotion.id_promo and matricule=%s"""
-        data= (id_data,)
-        curseur.execute(requete_ajout_app,data)
-        result_up = curseur.fetchall()
-
-        for val in result_up:
-            data_promo=val[9]
-            break
-
-        requete_promo = "SELECT * FROM promotion WHERE id_promo!=%s "
-        curseur.execute(requete_promo,(data_promo,))
-        result_promo = curseur.fetchall()
-        user = session['username']
-        return render_template("modifier_apprenant.html",result_up=result_up,result_promo=result_promo,user=user)
-    elif request.method == 'POST':
-        prenom = request.form["prenom"]
-        nom = request.form["nom"]
-        sexe = request.form["sexe"]
-        date_naissance = request.form["date_naissance"]
-        lieu_naissance = request.form["lieu_naissance"]
-        adresse = request.form["adresse"]
-        email = request.form["email"]
-        telephone = request.form["telephone"]
-        promotion = request.form["promo"]
-        
-        requete_libelle_promo = "select telephone,email from apprenant WHERE matricule!=%s "
-        curseur.execute(requete_libelle_promo,(id_data,))
-        apprenant = curseur.fetchall()
-        control_app=False
-
-        for app in apprenant:
-            if app[0] == telephone and app[1].lower()==email.lower():
-                control_app = True
-                break
-        if control_app == True:
-            flash("l'apprenant existe déjà")
-            print("l'utilisateur existe déjà")
-            return redirect(url_for('index'))     
-        else: 
-
-            requete_up_app = """UPDATE apprenant SET prenom=%s, nom=%s, sexe=%s, date_naissance=%s, 
-                            lieu_naissance=%s, adresse=%s, email=%s, telephone=%s, id_promo=%s
-                            WHERE matricule=%s"""    
-            data_up = (prenom,nom,sexe,date_naissance,lieu_naissance,adresse,email,telephone,promotion,id_data)
-            curseur.execute(requete_up_app,data_up)
-            connection.commit()
-            return redirect(url_for('lister_apprenant_mod'))
-
 #***********************************************************************************************
 if __name__ == '__main__': #si le fichier est executer alors execute le bloc
     db.create_all()

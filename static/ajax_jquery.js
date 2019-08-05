@@ -21,17 +21,21 @@ $( document ).ready(function() {
          contentType: 'application/json; charset=utf-8',
          url: "http://127.0.0.1:5000/filiere&"+x,
          success: function(liste_classe){
-            $('#classe').children('option:not(:first)').remove();
             $.each(liste_classe,function(index,d){
                /* $('#fil').append('Prénom : ' + d.Prenom); */         
                /* var selection = document.getElementById("classe");
-               selection.options[selection.options.length] = new Option(d.libelle, d.id);*/   
+               selection.options[selection.options.length] = new Option(d.libelle, d.id);
+               */   
                $("#classe").append("<option value="+ d.id +">" + d.libelle + "</option>");
             });
          }
       });
    });
 });
+
+/****************************************ACTION NOUVEAU LISTE DES FILIERES A AFFICHER****************/
+
+
 
  /********************************AJAX CLASSE****************************/
 $( document ).ready(function() {
@@ -70,23 +74,51 @@ $(function() {
    var matricule = document.getElementById("mat").value;
    $('#ancien').on('click',function(){
       document.getElementById("text-radio").innerHTML = "REINSCRIPTION";
+      document.getElementById('boutonenvoi').disabled = true;
+
       $('#fil').children('option:not(:first)').remove();
       $('#mat').attr('readonly', false); 
       $('#mat').val(""); 
       vider();
       lire(); 
-
       changeColor();
-
-   
-         
    }); 
    $('#nouveau').on('click',function(){
       document.getElementById("text-radio").innerHTML = "INSCRIPTION";
+      changeColor();
 
       $('#mat').attr('readonly', true);
       $('#mat').val(matricule);
-      window.location.reload();
+     /* window.location.reload();*/ 
+      vider();
+      ecrire();
+
+      $( document ).ready(function() {
+         
+         $('#fil').children('option:not(:first)').remove();
+         $('#classe').children('option:not(:first)').remove();
+   
+         /*document.getElementById("response").innerHTML = "You selected: " + x;*/
+         $.ajax({ 
+            type: "GET",
+            url: "http://127.0.0.1:5000/listfiliere",
+         });
+      });
+   
+   $( document ).ready(function() {
+         var x = document.getElementById("fil").value;
+         $.ajax({ 
+            type: "GET",
+            contentType: 'application/json; charset=utf-8',
+            url: "http://127.0.0.1:5000/listfiliere",
+            success: function(liste_filiere){
+               $.each(liste_filiere,function(index,d){
+
+                  $("#fil").append("<option value="+ d.id +">" + d.libelle + "</option>");
+               });
+            }
+         });
+      });
           
    });        
 });
@@ -95,8 +127,8 @@ $(function() {
 
 function ecouteInput(event) {
    var x = window.event.which || window.event.keyCode;
+
    if(x==13){
-      document.getElementById('boutonenvoi').disabled = true;
       var searchmat = document.getElementById("mat").value;
       $.ajax({ 
          type: "GET",
@@ -107,11 +139,11 @@ function ecouteInput(event) {
          contentType: 'application/json; charset=utf-8',
          url: "http://127.0.0.1:5000/search&"+searchmat,
 
-         success: function(apprenant_find){
-            
+         success: function(apprenant_find){   
             $.each(apprenant_find, function(index,d){
                if(d.prenom){
                   /*document.getElementById("response").innerHTML = "You selected is pliein";*/
+
                   $('#prenom').val(d.prenom);
 
                   $('#nom').val(d.nom);
@@ -123,7 +155,8 @@ function ecouteInput(event) {
                   $('#email').val(d.email);
                   $('#telephone').val(d.tel); 
                   $("#fil").append("<option value="+ d.id_fil +">" + d.nom_fil + "</option>");
-
+                  
+                  changeColorText();
                   $('#mat').attr('readonly', true);
                   lire();
                   document.getElementById('boutonenvoi').disabled = false;
@@ -132,13 +165,15 @@ function ecouteInput(event) {
 
                }
                else{
+                  document.getElementById('boutonenvoi').disabled = true;
+
                   $.uiAlert({
                      textHead: d.vide,
                      text: '', // Text
                      bgcolor: '#DB2828', // background-color
                      textcolor: '#fff', // color
                      position: 'top-center',// position . top And bottom ||  left / center / right
-                     time: 1, // time
+                     time: 5, // time
                   })                  
                }
             });
@@ -151,6 +186,8 @@ $('#boutsearch').on('click',function(){
    document.getElementById('boutsearch').style.display = 'none';
    $('#mat').attr('readonly', false);
    $('#mat').val("");
+   $('#fil').children('option:not(:first)').remove();
+   $('#classe').children('option:not(:first)').remove();
 
    vider();
 
@@ -176,7 +213,6 @@ function newFunction() {
          promo: 'empty',
          fil : 'empty',
          classe : 'empty',
-         date_ins : 'empty',
       }
    });
 }
@@ -223,7 +259,6 @@ function vider(){
       $('#mont_ins').val("");
       $('#mensualite').val("");
       $('#total_ins').val(""); 
-      $('#date_ins').val("");
 }
 
 function changeColor(){
@@ -237,5 +272,14 @@ function changeColor(){
    for (var j=0 ; j < y.length ; j++) {      
       y[j].style.color="black";
    }
+}
+
+function changeColorText(){
+
+   var x = document.getElementsByClassName("champ");
+   for (var i=0 ; i < x.length ; i++) {
+      x[i].style.color = "black";
+   }
+
 
 }
