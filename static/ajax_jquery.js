@@ -1,3 +1,4 @@
+/*********************************************ACTION LISTE DEROULANTE FILIERE****************/
 $( document ).ready(function() {
    $('#fil').change(function(){ 
       var x = document.getElementById("fil").value;
@@ -22,19 +23,12 @@ $( document ).ready(function() {
          url: "http://127.0.0.1:5000/filiere&"+x,
          success: function(liste_classe){
             $.each(liste_classe,function(index,d){
-               /* $('#fil').append('Prénom : ' + d.Prenom); */         
-               /* var selection = document.getElementById("classe");
-               selection.options[selection.options.length] = new Option(d.libelle, d.id);
-               */   
                $("#classe").append("<option value="+ d.id +">" + d.libelle + "</option>");
             });
          }
       });
    });
 });
-
-/****************************************ACTION NOUVEAU LISTE DES FILIERES A AFFICHER****************/
-
 
 
  /********************************AJAX CLASSE****************************/
@@ -44,8 +38,7 @@ $( document ).ready(function() {
       $('#mont_ins').val("");
       $('#mensualite').val("");
       $('#total_ins').val("");
-/*                document.getElementById("response").innerHTML = "You selected: " + x;
-*/    $.ajax({ 
+      $.ajax({ 
          type: "GET",
          url: "http://127.0.0.1:5000/classe&"+x,
       });
@@ -90,16 +83,12 @@ $(function() {
 
       $('#mat').attr('readonly', true);
       $('#mat').val(matricule);
-     /* window.location.reload();*/ 
       vider();
       ecrire();
 
-      $( document ).ready(function() {
-         
+      $( document ).ready(function() {         
          $('#fil').children('option:not(:first)').remove();
          $('#classe').children('option:not(:first)').remove();
-   
-         /*document.getElementById("response").innerHTML = "You selected: " + x;*/
          $.ajax({ 
             type: "GET",
             url: "http://127.0.0.1:5000/listfiliere",
@@ -107,7 +96,6 @@ $(function() {
       });
    
    $( document ).ready(function() {
-         var x = document.getElementById("fil").value;
          $.ajax({ 
             type: "GET",
             contentType: 'application/json; charset=utf-8',
@@ -119,8 +107,7 @@ $(function() {
                });
             }
          });
-      });
-          
+      });          
    });        
 });
 
@@ -128,7 +115,6 @@ $(function() {
 
 function ecouteInput(event) {
    var x = window.event.which || window.event.keyCode;
-
    if(x==13){
       var searchmat = document.getElementById("mat").value;
       $.ajax({ 
@@ -143,31 +129,23 @@ function ecouteInput(event) {
          success: function(apprenant_find){   
             $.each(apprenant_find, function(index,d){
                if(d.prenom){
-                  /*document.getElementById("response").innerHTML = "You selected is pliein";*/
-
                   $('#prenom').val(d.prenom);
-
                   $('#nom').val(d.nom);
                   $('#sexe').val(d.sexe);
-                  
                   $('#date_naissance').val(convert(d.date_naiss));
                   $('#lieu_naissance').val(d.lieu_naiss);
                   $('#adresse').val(d.adresse);
                   $('#email').val(d.email);
                   $('#telephone').val(d.tel); 
-                  $("#fil").append("<option value="+ d.id_fil +">" + d.nom_fil + "</option>");
-                  
-                  changeColorText();
-                  $('#mat').attr('readonly', true);
-                  lire();
+                  $("#fil").append("<option value="+ d.id_fil +">" + d.nom_fil + "</option>");                 
+                  $('#mat').attr('readonly', true);                  
                   document.getElementById('boutonenvoi').disabled = false;
-
                   document.getElementById('boutsearch').style.display = 'block';
-
+                  changeColorText();
+                  lire();
                }
                else{
                   document.getElementById('boutonenvoi').disabled = true;
-
                   $.uiAlert({
                      textHead: d.vide,
                      text: '', // Text
@@ -189,34 +167,26 @@ $('#boutsearch').on('click',function(){
    $('#mat').val("");
    $('#fil').children('option:not(:first)').remove();
    $('#classe').children('option:not(:first)').remove();
-
    vider();
-
 });
 
 /*************************************************CONTROLE CHAMP*****************************/
-
-
-
-newFunction();
-function newFunction() {
-   $('.ui.form')
-   .form({
-      fields: {
-         prenom: 'empty',
-         nom: 'empty',
-         sexe: 'empty',
-         date_naissance: 'empty',
-         lieu_naissance: 'empty',
-         adresse: 'empty',
-         email: 'empty',
-         telephone: 'empty',
-         promo: 'empty',
-         fil : 'empty',
-         classe : 'empty',
-      }
-   });
-}
+$('.ui.form')
+.form({
+   fields: {
+      prenom: 'empty',
+      nom: 'empty',
+      sexe: 'empty',
+      date_naissance: 'empty',
+      lieu_naissance: 'empty',
+      adresse: 'empty',
+      email: 'empty',
+      telephone: 'empty',
+      promo: 'empty',
+      fil : 'empty',
+      classe : 'empty',
+   }
+});
 
 /*********************************************LES FONCTIONS***********************/
 function convert(str) {
@@ -244,7 +214,6 @@ function ecrire(){
    $('#adresse').attr('readonly', false);
    $('#telephone').attr('readonly', false);
    $('#email').attr('readonly', false);
-
    document.getElementById('boutsearch').style.display = 'none';
 
 }
@@ -278,11 +247,8 @@ function changeColor(){
 }
 
 function changeColorText(){
-
    var x = document.getElementsByClassName("champ");
    for (var i=0 ; i < x.length ; i++) {
       x[i].style.color = "black";
    }
-
-
 }
